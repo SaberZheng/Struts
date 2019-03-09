@@ -28,7 +28,7 @@ public class RegisterAction {
 		logger.warn( "warn message" ); // 对应  logger.log( Level.WARN, message );
 		logger.error( "error message" ); // 对应  logger.log( Level.ERROR, message );
 		logger.fatal( "fatal message" ); // 对应  logger.log( Level.FATAL , message );
-		//logger.log( Level.FATAL , "FATAL" );
+		logger.log( Level.FATAL , "FATAL" );
 		
 		logger.log( Level.OFF , "off message" );// Level.OFF
 		

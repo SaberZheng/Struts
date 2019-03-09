@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.5//EN"
+	"http://struts.apache.org/dtds/struts-2.5.dtd">
+
+<struts>
+
+	<!-- 允许在 action 的 名称 中使用 / 字符  -->
+	 <constant name="struts.enable.SlashesInActionNames" value="true" />
+	<!-- 启用动态方法调用  <constant name="struts.enable.DynamicMethodInvocation" value="true" /> -->
+	
+	<!-- 修改 action 请求路径的后缀 -->
+	<constant name="struts.action.extension" value="do,," />
+	<!-- 解析器的作用是对request.getInputStream()返回的字节流进行解析获取文件内容、类型、名称（和resultType="stream" 实现下载原理一致） -->
+	<!-- 指定 对上传的 字节流进行解析的解析器 : jakarta 、cos 、pell -->
+	<constant name="struts.multipart.parser" value="jakarta" />
+	<!-- 指定上传文件的尺寸 ( 在 default.properties 中默认定义的大小是 2MB )-->
+	<constant name="struts.multipart.maxSize" value="2097152000" />
+	
+	<package name="upload" namespace="/upload" extends="struts-default" >
+	
+	   <action name="action/single" class="ecut.upload.SingleFileUploadAction" >
+	       <!-- 通过 param 为 当前的 Action 实例 指定一个参数 ( 实际上是 Action 类中的一个 属性 ) -->
+	       <param name="storePath">D:/</param>
+	       
+	       <result name="success" type="redirectAction">
+	           <param name="actionName">success/single</param>
+	       </result>
+	        <result name="fail" type="redirectAction">
+               <param name="actionName">fail/single</param>
+           </result>
+           
+            <exception-mapping result="fail" exception="java.lang.Exception" />
+            
+	       <interceptor-ref name="defaultStack">
+               <!-- 必须满足 struts.multipart.maxSize >=  fileUpload.maximumSize -->
+               <param name="fileUpload.maximumSize">20971520</param>
+           </interceptor-ref>
+	       
+	   </action>
+	   
+	   <action name="action/multiple" class="ecut.upload.MultipleFileUploadAction" >
+	       <!-- 通过 param 为 当前的 Action 实例 指定一个参数 ( 实际上是 Action 类中的一个 属性 ) -->
+	       <param name="storePath">D:/</param>
+	       
+	       <result name="success" type="redirectAction">
+	           <param name="actionName">success/single</param>
+	       </result>
+	        <result name="fail" type="redirectAction">
+               <param name="actionName">fail/single</param>
+           </result>
+           
+           <exception-mapping result="fail" exception="java.lang.Exception" />
+           
+	       <interceptor-ref name="defaultStack">
+               <!-- 必须满足全局上传的文件尺寸最大值 struts.multipart.maxSize >=  单前action上传文件尺寸最大值fileUpload.maximumSize -->
+               <param name="fileUpload.maximumSize">20971520</param>
+           </interceptor-ref>
+	       
+	   </action>
+	   
+	   <action name="success/single">
+	       <result>/WEB-INF/pages/upload/success_single.jsp</result>
+	   </action>
+	   
+	   <action name="fail/single">
+           <result>/WEB-INF/pages/upload/fail_single.jsp</result>
+       </action>
+	   
+	</package>
+
+</struts>

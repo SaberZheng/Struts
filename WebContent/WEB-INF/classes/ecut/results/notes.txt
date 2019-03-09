@@ -1,0 +1,109 @@
+
+1、收集来自页面的数据
+
+     1.1>、属性驱动
+     
+                    表单 或 URL 中的 参数名称 跟 Action 类中的属性名称一致，即可
+                    
+                    <form action="${ pageContext.request.contextPath }/customer/regist" method="post" >
+                        <input type="text" name="username" placeholder="用户名">
+                        <input type="submit" value="注册">
+                    </form>
+                    
+                    ${ pageContext.request.contextPath }/customer/regist?username=zhangsanfeng
+                    
+                    public class RegistAction implements Action {
+    
+                            private String username ; // 应该有 getter 和 setter 
+                    
+                    }
+     
+     1.2>、模型驱动
+     
+                public class LoginAction implements Action , ModelDriven<Customer> {
+                
+                    private Customer customer ;
+                
+                    @Override
+                    public String execute() throws Exception {
+                        logger.info( "username : " + customer.getUsername() );
+                        logger.info( "password : " + customer.getPassword() );
+                        return SUCCESS;
+                    }
+                    
+                    @Override
+                    public Customer getModel() {
+                        if( this.customer == null ) {
+                            this.customer = new Customer();
+                        } 
+                        return  this.customer ;
+                    }
+                
+                }
+
+2、访问 Servlet API
+
+        间接访问:
+                ActionContext context = ActionContext.getContext();
+                
+                Map<String,Object> applicationMap = context.getApplication(); // 这个 Map 集合 ServletCotnext 
+                Map<String,Object> sessionMap = context.getSession(); // 这个 Map 集合与 HttpSession
+                
+                HttpParameters params = context.getParameters(); // request parameter
+                
+        直接访问:
+                     实现接口并提供 setter 方法
+                        org.apache.struts2.util.ServletContextAware
+                        org.apache.struts2.interceptor.ServletRequestAware
+                        org.apache.struts2.interceptor.ServletResponseAware
+                        
+                    通过 ServletActionContext 类的静态方法
+                        org.apache.struts2.ServletActionContext.getPageContext()
+                        org.apache.struts2.ServletActionContext.getRequest()
+                        org.apache.struts2.ServletActionContext.getRequest().getSession()
+                        org.apache.struts2.ServletActionContext.getResponse()
+                        org.apache.struts2.ServletActionContext.getServletContext()
+
+        ***  使用 Struts 的方式 使用 Struts ， 而不是 挂着 Struts 的羊头卖着 Servlet 狗肉 ***
+        ***  如果已经使用了 Struts 框架，则应该优先考虑使用 Struts 而不是使用 Servlet   ***
+        ***  比如 重定向、转发 等操作 应该用 Struts 框架的方式实现，而不是用 Servlet 方式 **
+
+
+
+
+3、全局的 result
+
+        <global-results>
+            <!-- 在这里所写的 result 属于当前包 的全局 result -->
+            <result name="index" type="redirect">/index.jsp</result>
+            <result name="exception" type="dispatcher">/catch.jsp</result>
+        </global-results>
+
+4、控制异常
+		全局的异常映射
+        <global-exception-mappings>
+            <exception-mapping  exception="java.lang.RuntimeException" result="exception" />
+        </global-exception-mappings>
+
+5、result-type : stream 、json
+
+     <result type="stream" >
+     
+            向 客户端 发送 字节流 
+            
+            在 客户端 可以直接显示 、 可以保存到本地 ( 下载 )
+     
+     <result type="json" >
+     
+         添加 struts2-json-plugin-2.5.10.1.jar
+     
+         相应的 package 应该继承 json-default
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.5//EN"
+	"http://struts.apache.org/dtds/struts-2.5.dtd">
+
+<struts>
+	<!-- first -->
+	<!-- @WebServlet( "/customer/register" ) -->
+	<!-- 用 name 属性 指定 package 的名称 ， 用 namespace 指定命名空间，必须 用 extends 指定继承哪个包 -->
+	<package name="customer" namespace="/customer" extends="struts-default">
+
+		<action name="register" class="ecut.first.action.RegisterAction"
+			method="execute">
+			<result name="成功">/first/success.jsp</result>
+			<result name="失败">/first/fail.jsp</result>
+		</action>
+
+	</package>
+
+
+	<!-- action -->
+	<!-- 允许在 action 的 名称 中使用 / 字符 -->
+	<constant name="struts.enable.SlashesInActionNames" value="true" />
+
+	<!-- 启用动态方法调用 -->
+	<constant name="struts.enable.DynamicMethodInvocation" value="true" />
+	
+		<constant name="struts.i18n.encoding" value="UTF-8"></constant>
+	
+	
+	<!-- 在每个 <action> 标记 ， 用 method 属性中指定对应的方法名称，包名不要重复 -->
+	<package name="customer-action" namespace="/customer/action"
+		extends="struts-default">
+
+		<!-- 可以在自己的包中通过 default-class-ref 来自定义默认的 Action 类 -->
+		<default-class-ref class="ecut.action.action.CustomerAction" />
+
+		<action name="action/register" class="ecut.action.action.CustomerAction"
+			method="register">
+			<!-- 重定向到另一个action的配置，<result type="redirectAction">xxxx<result name="success" 
+				type="redirectAction">默认是actionName -->
+			<result name="success" type="redirectAction">
+				<!-- 不在同一个包内需要指定命名空间 ,在同一个包可以省略（customer-action） -->
+				<!-- <param name="namespace">/customer/action</param> -->
+				<param name="actionName">page/success/register</param>
+			</result>
+		</action>
+
+		<!-- 对于 action 标签 如果没有指定 class 属性，则默认以 default-class-ref 所定义的类为准 -->
+		<action name="page/success/register">
+			<!-- 对于任意的 一个 result 来说，默认的 名称是 success ，默认的 type 是 dispatcher -->
+			<!-- dispatcher 相当于 Servlet 中的 forward 操作 -->
+			<result name="success" type="dispatcher">/WEB-INF/pages/action/register_success.jsp
+			</result>
+		</action>
+
+		<action name="action/login" class="ecut.action.action.CustomerAction"
+			method="login">
+			<result name="success" type="dispatcher">/WEB-INF/pages/action/login_success.jsp
+			</result>
+		</action>
+
+		<action name="action/logout" class="ecut.action.action.CustomerAction"
+			method="logout">
+			<result name="success" type="dispatcher">/WEB-INF/pages/action/logout_success.jsp
+			</result>
+		</action>
+
+	</package>
+
+	<!-- 动态方法调用，页面上的路径的形式: "/命名空间/<action>名称!方法名称" -->
+	<package name="dynamic" namespace="/dynamic" extends="struts-default">
+
+		<default-class-ref class="ecut.action.action.StudentAction" />
+
+		<action name="student">
+			<result name="register-success" type="redirectAction">
+				<!-- 不在同一个包内需要指定命名空间 ,在同一个包可以省略（customer-action） -->
+				<param name="namespace">/customer/action</param>
+				<param name="actionName">page/success/register</param>
+			</result>
+			<result name="login-success" type="redirectAction">
+				<param name="actionName">page/success/login</param>
+			</result>
+			<result name="logout-success" type="redirectAction">
+				<param name="actionName">page/success/logout</param>
+			</result>
+			<!-- 声明哪些方法支持动态调用 -->
+			<allowed-methods>register,login,logout</allowed-methods>
+		</action>
+
+		<action name="page/success/login">
+			<result name="success" type="dispatcher">/WEB-INF/pages/action/login_success.jsp
+			</result>
+		</action>
+
+		<action name="page/success/log">
+			<result name="success" type="dispatcher">/WEB-INF/pages/action/login_success.jsp
+			</result>
+		</action>
+
+	</package>
+
+	<package name="wildcard" namespace="/wildcard/teacher" extends="struts-default">
+
+		<default-class-ref class="ecut.action.action.TeacherAction" />
+		<!--与所允许的动作名不匹配[a-zA-Z0-9._!/\-]*,将使用默认动作索引index,*只能匹配xxx,不能匹配到xx_xxx -->
+		<action name="*" method="{1}">
+			<result name="success" type="dispatcher">/WEB-INF/pages/action/{1}_success.jsp
+			</result>
+			<!-- 声明哪些方法支持动态调用,不加会报错There is no Action mapped for namespace -->
+			<allowed-methods>register,login,logout</allowed-methods>
+		</action>
+
+	</package>
+
+	<!-- result -->
+	<package name="customer-results" namespace="/customer/results"
+		extends="struts-default">
+
+		<action name="register" class="ecut.results.action.RegisterAction">
+			<result>/WEB-INF/pages/results/register_success.jsp</result>
+		</action>
+
+		<action name="login" class="ecut.results.action.LoginAction">
+			<result>/WEB-INF/pages/results/login_success.jsp</result>
+		</action>
+
+	</package>
+
+	<package name="servlet" namespace="/servlet" extends="struts-default">
+
+		<default-class-ref class="ecut.results.action.CustomerAction" />
+
+		<action name="login" method="login">
+			<!-- 使用了重定向，因此不是同一个request，则通过requestScop是无法获得值的，只能通过session获取 -->
+			<result name="success" type="redirectAction">
+				<param name="actionName">main</param>
+			</result>
+			<result name="input" type="redirect">/results/index.jsp</result>
+		</action>
+
+		<action name="main">
+			<result>/WEB-INF/pages/results/login_success.jsp</result>
+		</action>
+
+		<action name="logout" method="logout">
+			<!-- 指定重定向到那个页面，工程名可以省略，若不加/则默认是/servlet -->
+			<result type="redirect">
+				<param name="location">/results/index.jsp</param>
+			</result>
+		</action>
+
+	</package>
+
+	<package name="throw" namespace="/throw" extends="struts-default">
+
+		<global-results>
+			<!-- 在这里所写的 result 属于当前包 的全局 result -->
+			<result name="index" type="redirect">/results/index.jsp</result>
+			<result name="exception" type="dispatcher">/results/catch.jsp</result>
+		</global-results>
+		<!-- 全局的exception只能引用全局的result -->
+		<global-exception-mappings>
+			<exception-mapping exception="java.lang.RuntimeException"
+				result="exception" />
+		</global-exception-mappings>
+
+		<action name="hello" class="ecut.results.action.HelloAction">
+			<!-- 仅仅当前的 <action> 可以访问，属于局部的 result -->
+			<result name="success" type="dispatcher">/results/hello.jsp</result>
+		</action>
+
+	</package>
+
+	<!-- 参考 Servlet 部分的 response 工程 -->
+	<package name="stream" namespace="/stream" extends="struts-default">
+
+		<default-class-ref class="ecut.results.action.ImageAction" />
+
+		<action name="show">
+			<param name="storePath">D:/</param>
+			<result name="success" type="stream">
+				<!-- inputName 属性用来指定 从哪个输入流中读取 文件 , 默认名称是 inputStream ( InputStream 
+					类型 ) -->
+				<param name="inputName">inputStream</param>
+				<param name="contentType">image/jpeg</param>
+				<param name="contentDisposition">inline</param>
+			</result>
+		</action>
+
+		<action name="down">
+			<param name="storePath">D:/</param>
+			<result name="success" type="stream">
+				<param name="inputName">inputStream</param>
+				<param name="contentType">image/jpeg</param>
+				<param name="contentDisposition">attachment;filename="${ name }"</param>
+			</result>
+		</action>
+
+		<!-- 任务: 用 Struts 2 的方式 在页面上显示一个 验证码图片 -->
+		<!-- <action name="identity" class="ecut.result.action.IdentityCodeAction"> 
+			</action> -->
+		<action name="code" class="ecut.results.action.IdentityCodeAction">
+			<result name="success" type="stream">
+				<param name="inputName">inputStream</param>
+				<param name="contentType">image/jpeg</param>
+				<param name="contentDisposition">inline</param>
+				<param name="contentCharSet">UTF-8</param>
+			</result>
+		</action>
+
+	</package>
+
+	<!-- JSON : JavaScript Object Notation -->
+	<!-- json-default继承了struts-default并扩展了他 -->
+	<package name="json" namespace="/json" extends="json-default">
+
+		<default-class-ref class="ecut.results.action.JsonAction" />
+
+		<action name="customer" method="bean">
+			<result name="success" type="json">
+				<!-- 指定 root 参数，可以确定 只将哪个属性 转换为 JSON 格式 -->
+				<param name="root">customer</param>
+			</result>
+		</action>
+
+		<action name="map" method="map">
+			<result name="success" type="json">
+				<param name="root">map</param>
+			</result>
+		</action>
+
+	</package>
+	
+	<!-- interceptor -->
+	<include file="struts-interceptor.xml"/>
+	
+	<!-- upload -->
+	<include file="struts-upload.xml"/>
+	
+	<!-- i18n -->
+	
+	<!-- 允许在 action 的 名称 中使用 / 字符 <constant name="struts.enable.SlashesInActionNames" value="true" /> -->
+	 
+	<!-- 启用动态方法调用  <constant name="struts.enable.DynamicMethodInvocation" value="true" /> -->
+	
+	<!-- 修改 action 请求路径的后缀 <constant name="struts.action.extension" value="do,," /> -->
+	
+	<!-- 指定属性文件的 baseName 就是 除了 "_语言代码_国家或地区代码.properties" 之外的那部分 -->
+	<constant name="struts.custom.i18n.resources" value="user_login" />
+	
+	<package name="user" namespace="/user" extends="struts-default" >
+		
+	   <action name="index" >
+	       <result>/i18n/index.jsp</result>
+	   </action>
+	
+	   <action name="login" ></action>
+	   
+	</package>
+</struts>

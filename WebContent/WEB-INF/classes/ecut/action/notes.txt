@@ -1,0 +1,110 @@
+
+1、实现 Action 类的方法
+
+2、在同一个 Action 类中 定义多个方法 ( 这些方法被 <action>  的 method 所使用 )
+
+    2.1> 第一种配置，使用 <action> 标签的 method 属性指定相应的方法
+    
+             <package name="customer" namespace="/customer" extends="struts-default" >
+             
+                    <default-class-ref class="org.malajava.action.CustomerAction" />
+                    
+                    <!-- /customer/register -->
+                    <action name="register" class="org.malajava.action.CustomerAction" method="register" >
+                        <result name="success" type="dispatcher">/WEB-INF/pages/register_success.jsp</result>
+                    </action>
+                    
+                     <!-- /customer/login -->
+                    <action name="login" class="org.malajava.action.CustomerAction" method="login" >
+                        <result name="success" type="dispatcher">/WEB-INF/pages/login_success.jsp</result>
+                    </action>
+                    
+                     <!-- /customer/logout -->
+                    <action name="logout" class="org.malajava.action.CustomerAction" method="logout" >
+                        <result name="success" type="dispatcher">/WEB-INF/pages/logout_success.jsp</result>
+                    </action>
+                
+            </package>
+
+    2.2> 第二种配置，启动动态方法调用
+    
+             /dynamic/student!register 
+             
+             /dynamic/student!login
+             
+             /dynamic/student!logout 
+             
+             <package name="dynamic" namespace="/dynamic" extends="struts-default" >
+                  <default-class-ref class="org.malajava.action.StudentAction" />
+                  <action name="student">
+                        <result name="register-success" type="dispatcher">/WEB-INF/pages/register_success.jsp</result>
+                        <result name="login-success" type="dispatcher">/WEB-INF/pages/login_success.jsp</result>
+                        <result name="logout-success" type="dispatcher">/WEB-INF/pages/logout_success.jsp</result>
+                        <!-- 声明哪些方法支持动态调用 -->
+                        <allowed-methods>register,login,logout</allowed-methods>
+                  </action>
+            </package>
+            
+    2.3> 第三种配置，使用通配符
+    
+             /wildcard/teacher/registerer
+             
+             /wildcard/teacher/login 
+             
+             /wildcard/teacher/logout 
+             
+            <constant name="struts.enable.DynamicMethodInvocation" value="true" />
+             
+            <package name="wildcard" namespace="/wildcard/teacher" extends="struts-default">
+
+                <default-class-ref class="org.malajava.action.TeacherAction" />
+        
+                <action name="*" method="{1}">
+                    <result name="success" type="dispatcher">/WEB-INF/pages/{1}_success.jsp</result>
+                    <allowed-methods>register,login,logout</allowed-methods>
+                </action>
+        
+            </package>
+
+3、指定 result 的类型
+
+        struts-defualt.xml 文件的 181 行 开始定义了:
+        
+                <result-types>
+                    <result-type name="chain" class="com.opensymphony.xwork2.ActionChainResult"/>
+                    <result-type name="dispatcher" class="org.apache.struts2.result.ServletDispatcherResult" default="true"/>
+                    <result-type name="freemarker" class="org.apache.struts2.views.freemarker.FreemarkerResult"/>
+                    <result-type name="httpheader" class="org.apache.struts2.result.HttpHeaderResult"/>
+                    <result-type name="redirect" class="org.apache.struts2.result.ServletRedirectResult"/>
+                    <result-type name="redirectAction" class="org.apache.struts2.result.ServletActionRedirectResult"/>
+                    <result-type name="stream" class="org.apache.struts2.result.StreamResult"/>
+                    <result-type name="velocity" class="org.apache.struts2.result.VelocityResult"/>
+                    <result-type name="xslt" class="org.apache.struts2.views.xslt.XSLTResult"/>
+                    <result-type name="plainText" class="org.apache.struts2.result.PlainTextResult" />
+                    <result-type name="postback" class="org.apache.struts2.result.PostbackResult" />
+                </result-types>
+
+        所有的 <result> 默认的名称 ( name ) 都是 success ，默认的 类型 ( type ) 都是 dispatcher
+        
+                dispatcher 等同于 RequestDispatcher 中的 forward 操作 
+                
+                redirect 等同于 HttpServletResponse 中的 sendRedirect 操作, 
+                
+                                    当 type = "redirect" 时，可以指定任意的位置
+                                    
+                            <result type="redirect">http://www.google.com</result>
+
+                redirectAction 类似于 redirect ， 与 redirect 不同的是它专门重定向到 <action>
+                
+                            <result name="success" type="redirectAction">
+                                <param name="namespace">/customer</param>
+                                <param name="actionName">page/success/register</param>
+                            </result>
+
+
+4、在 <action> 的 名称 中 使用 / 字符:
+
+                <constant name="struts.enable.SlashesInActionNames" value="true" />
+                
+                Slashes 意思是 斜杠
+

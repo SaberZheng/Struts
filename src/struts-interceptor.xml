@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.5//EN"
+	"http://struts.apache.org/dtds/struts-2.5.dtd">
+
+<struts>
+
+	<!-- 允许在 action 的 名称 中使用 / 字符  <constant name="struts.enable.SlashesInActionNames" value="true" /> -->
+	<!-- 启用动态方法调用  <constant name="struts.enable.DynamicMethodInvocation" value="true" /> -->
+	
+	<!-- 修改 action 请求路径的后缀 value="do,,action既可以是action后缀也可以是do后缀也可以啥都不写"-->
+	<constant name="struts.action.extension" value="do,," />
+	
+	<package name="interceptor" namespace="/interceptor" extends="struts-default" >
+	
+	   <!-- 在 package 内部 使用 interceptors 可以定义 拦截器 和 拦截器栈 -->
+	   <interceptors>
+	   
+	       <!-- 使用 interceptor 声明拦截器(定义)，引用一个拦截器，就创建了一个指定类型的对象 -->
+	       <interceptor name="checkLogin" class="ecut.interceptors.interceptor.CheckLoginInterceptor" />
+	       
+	       <!-- 在声明拦截器时指定拦截器的参数值 -->
+	       <interceptor name="param" class="ecut.interceptors.interceptor.ParamInterceptor" >
+	           <param name="interceptorParam">声明时所指定的拦截器参数的值就是参数的默认值</param>
+	       </interceptor>
+	       
+	       <!-- 声明拦截器栈 -->
+	       <interceptor-stack name="myStack">
+	       	   <!-- 引用已声明的拦截器栈 -->
+	           <interceptor-ref name="defaultStack" />
+	       	   <!-- 引用已声明的拦截器栈，引用一次就创建一个该拦截器的实例，并初始化-->
+	           <interceptor-ref name="checkLogin" />
+	           <interceptor-ref name="param" >
+	               <param name="interceptorParam">拦截器栈</param>
+	           </interceptor-ref>
+	       </interceptor-stack>
+	       
+	   </interceptors>
+	   
+	   <!-- 全局的result需要在拦截器之后 -->   
+	   <global-results>
+	       <result name="input" type="redirect">
+               <param name="location">/interceptor/index.jsp</param>
+           </result>
+	   </global-results>
+	
+	   <action name="login"  class="ecut.interceptors.action.LoginAction"  method="execute">
+	       <result name="success" type="redirectAction">
+	           <param name="actionName">main</param>
+	       </result>
+	   </action>
+	   
+	   <action name="main" >
+	       <result>/WEB-INF/pages/interceptor/main.jsp</result>
+	        <!--如果引用了自己的拦截器则默认拦截器就不起作用了，默认拦截器在struts-default.xml使用 default-interceptor-ref指定（defaultStack）,
+	       defaultStack中引用了modelDriven拦截器,因此参数都为null，需要在自己的拦截器前面引用默认的拦截器
+	        -->
+	       <!-- <interceptor-ref name="defaultStack" /> 
+	       <interceptor-ref name="checkLogin" /> 
+	       <interceptor-ref name="param" >
+	           <param name="interceptorParam">张三丰</param>
+	       </interceptor-ref>
+	       <interceptor-ref name="param" >
+               <param name="interceptorParam">张翠山</param>
+           </interceptor-ref> -->
+           
+           <!-- 引用拦截器栈，以便于对当前的action进行拦截 -->
+	       <interceptor-ref name="myStack">
+	           <!-- 形式上 是在 覆盖 param 的 interceptorParam 参数的值 -->
+	           <param name="param.interceptorParam">Action</param>
+	           <!-- 实际上 是将本次引用中的 param 对应的对象 替换成一个新的对象 -->
+	       </interceptor-ref> 
+	   </action>
+	   
+	   <action name="logout"  class="ecut.interceptors.action.LoginAction" method="logout">
+	   		<result name="success" type="redirectAction">
+	           <param name="actionName">main</param>
+	       </result>
+	       <!-- 引用之前已经声明好的拦截器，没有明确指定param拦截器里interceptorParam属性值就使用默认的属性值 -->
+	       <interceptor-ref name="myStack" /> 
+	   </action>
+	   
+	</package>
+
+</struts>

@@ -1,0 +1,28 @@
+
+表达式语言 ( Expression Language )
+
+        表达式的本质:  就是 按照某种规则 书写的 字符串
+ 
+        表达式的处理: 一定有一套程序 对 表达式 中的 字符串进行解析和处理，比如 Tomcat
+
+        JSP 容器中支持 EL 表达式 ( 因此在 JSP 页面中可以直接使用 )
+    
+        Spring 中 可以使用 Spring Expression Language ( SpEL )
+        
+        
+
+ OGNL , Object Graphic Navigation Language ，对象图导航语言
+ 
+    OGNL 是一种 功能强大 的 表达式语言 ( Expression Language )
+ 
+    OGNL 在 非 Web 环境下 ，需要用到 :
+     
+            javassist-3.20.0-GA.jar
+            
+            ognl-3.1.12.jar
+ 
+    OGNL 目前是 Apache 基金会 下的 commons 项目 下的 一个小项目: http://commons.apache.org
+ 
+ 
+ 
+ 
